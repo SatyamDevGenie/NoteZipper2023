@@ -49,8 +49,8 @@ const RegisterScreen = () => {
       const data = new FormData();
       data.append("file", pics);
       data.append("upload_preset", "notezipper");
-      data.append("cloud_name", "drhama97q");
-      fetch("https://api.cloudinary.com/v1_1/drhama97q/image/upload", {
+      data.append("cloud_name", "deli6jgkk");
+      fetch("https://api.cloudinary.com/v1_1/deli6jgkk/image/upload", {
         method: "post",
         body: data,
       })
