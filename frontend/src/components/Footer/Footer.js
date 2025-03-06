@@ -3,26 +3,13 @@ import { Container, Row, Col } from "react-bootstrap";
 
 const Footer = () => {
   return (
-    <footer
-      style={{
-        width: "100%",
-        position: "relative",
-        bottom: "0",
-        display: "flex",
-        justifyContent: "center",
-      }}
-    >
+    <footer className="bg-black text-light py-6 mt-2">
       <Container>
-        <Row>
-          <Col
-            className="text-center py-3"
-            style={{
-              fontWeight: "bold",
-              fontSize: "1rem",
-              fontFamily: "Georgia",
-            }}
-          >
-            Note Zipper App &nbsp; &nbsp;&nbsp;&copy; &nbsp; Trust us before use
+        <Row className="text-center">
+          <Col>
+            <p className="mb-0 font-weight-bold" style={{ fontSize: "1.1rem", fontFamily: "Georgia, serif" }}>
+              Note Zipper &copy; {new Date().getFullYear()} | Secure Your Notes with Confidence
+            </p>
           </Col>
         </Row>
       </Container>
