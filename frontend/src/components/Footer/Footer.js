@@ -3,12 +3,19 @@ import { Container, Row, Col } from "react-bootstrap";
 
 const Footer = () => {
   return (
-    <footer className="bg-black text-light py-6 mt-2">
+    <footer className="bg-black text-light py-4 mt-5">
       <Container>
-        <Row className="text-center">
-          <Col>
-            <p className="mb-0 font-weight-bold" style={{ fontSize: "1.1rem", fontFamily: "Georgia, serif" }}>
-              Note Zipper &copy; {new Date().getFullYear()} | Secure Your Notes with Confidence
+        <Row className="text-center align-items-center">
+          <Col xs={12}>
+            <p
+              className="mb-0 fw-bold"
+              style={{
+                fontSize: "1rem",
+                fontFamily: "Georgia, serif",
+                wordWrap: "break-word",
+              }}
+            >
+              Note Zipper | {new Date().getFullYear()} | Secure Your Notes with Confidence
             </p>
           </Col>
         </Row>

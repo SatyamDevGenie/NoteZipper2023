@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Button, Col, Form, Row } from "react-bootstrap";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { updateProfile } from "../../actions/userActions";
-import ErrorMessage from "../../components/ErrorMessage";
 import Loading from "../../components/Loading";
-import MainScreen from "../../components/MainScreen"; // Ensure correct import
+import MainScreen from "../../components/MainScreen";
 
 const ProfileScreen = () => {
   const [name, setName] = useState("");
@@ -13,20 +11,18 @@ const ProfileScreen = () => {
   const [pic, setPic] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [picMessage, setPicMessage] = useState();
+  const [picError, setPicError] = useState(null);
+  const [passwordError, setPasswordError] = useState(null);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const userLogin = useSelector((state) => state.userLogin);
-  const { userInfo } = userLogin;
-
-  const userUpdate = useSelector((state) => state.userUpdate);
-  const { loading, error, success } = userUpdate;
+  const { userInfo } = useSelector((state) => state.userLogin);
+  const { loading, error, success } = useSelector((state) => state.userUpdate);
 
   useEffect(() => {
     if (!userInfo) {
-      navigate("/");
+      navigate("/login");
     } else {
       setName(userInfo.name);
       setEmail(userInfo.email);
@@ -34,113 +30,222 @@ const ProfileScreen = () => {
     }
   }, [navigate, userInfo]);
 
-  const postDetails = (pics) => {
-    if (!pics) {
-      return setPicMessage("Please select an Image");
+  const uploadProfilePicture = async (file) => {
+    if (!file) {
+      setPicError("Please select an image.");
+      return;
     }
-    setPicMessage(null);
+    setPicError(null);
 
-    if (pics.type === "image/jpeg" || pics.type === "image/png") {
-      const data = new FormData();
-      data.append("file", pics);
-      data.append("upload_preset", "notezipper");
-      data.append("cloud_name", "drhama97q");
-      fetch("https://api.cloudinary.com/v1_1/drhama97q/image/upload", {
-        method: "post",
-        body: data,
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          setPic(data.url.toString());
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    } else {
-      return setPicMessage("Please select an Image");
+    if (file.type !== "image/jpeg" && file.type !== "image/png") {
+      setPicError("Only JPEG and PNG images are supported.");
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "notezipper");
+      formData.append("cloud_name", "drhama97q");
+
+      const response = await fetch(
+        "https://api.cloudinary.com/v1_1/drhama97q/image/upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+      const data = await response.json();
+
+      if (data.url) {
+        setPic(data.url.toString());
+      } else {
+        setPicError("Failed to upload image. Please try again.");
+      }
+    } catch (error) {
+      setPicError("An error occurred during image upload.");
+      console.error("Image upload error:", error);
     }
   };
 
   const submitHandler = (e) => {
     e.preventDefault();
-    if (password === confirmPassword)
-      dispatch(updateProfile({ name, email, password, pic }));
+    setPasswordError(null);
+
+    if (password && password !== confirmPassword) {
+      setPasswordError("Passwords do not match.");
+      return;
+    }
+
+    dispatch(updateProfile({ name, email, password, pic }));
   };
 
   return (
-    <MainScreen title="EDIT PROFILE">
-      <div>
-        <Row className="profileContainer">
-          <Col md={6}>
-            <Form onSubmit={submitHandler}>
-              {loading && <Loading />}
-              {success && (
-                <ErrorMessage variant="success">
-                  Update Successfully
-                </ErrorMessage>
-              )}
-              {error && <ErrorMessage variant="danger">{error}</ErrorMessage>}
-              <Form.Group controlId="name">
-                <Form.Label>Name</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter Name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                ></Form.Control>
-              </Form.Group>
-              <Form.Group controlId="email">
-                <Form.Label>Email Address</Form.Label>
-                <Form.Control
-                  type="email"
-                  placeholder="Enter Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                ></Form.Control>
-              </Form.Group>
-              <Form.Group controlId="password">
-                <Form.Label>Password</Form.Label>
-                <Form.Control
-                  type="password"
-                  placeholder="Enter Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                ></Form.Control>
-              </Form.Group>
-              <Form.Group controlId="confirmPassword">
-                <Form.Label>Confirm Password</Form.Label>
-                <Form.Control
-                  type="password"
-                  placeholder="Confirm Password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                ></Form.Control>
-              </Form.Group>
-              {picMessage && (
-                <ErrorMessage variant="danger">{picMessage}</ErrorMessage>
-              )}
-              <Form.Group controlId="pic">
-                <Form.Label>Change Profile Picture</Form.Label>
-                <Form.Control
-                  type="file"
-                  onChange={(e) => postDetails(e.target.files[0])}
-                />
-              </Form.Group>
-              <Button type="submit" variant="primary" className="mt-3">
-                Update
-              </Button>
-            </Form>
-          </Col>
-          <Col
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
+    <MainScreen title="Edit Profile">
+      <div className="max-w-4xl mx-auto mt-8 p-6 bg-white rounded-lg shadow-md">
+        <div className="flex flex-col md:flex-row gap-8">
+          {/* Form Section */}
+          <form
+            onSubmit={submitHandler}
+            aria-label="Update profile form"
+            className="flex-1"
           >
-            <img src={pic} alt={name} className="profilePic" />
-          </Col>
-        </Row>
+            {loading && <Loading />}
+            {error && (
+              <div
+                role="alert"
+                className="mb-4 rounded bg-red-100 px-4 py-3 text-red-700"
+              >
+                {error}
+              </div>
+            )}
+            {success && (
+              <div
+                role="alert"
+                className="mb-4 rounded bg-green-100 px-4 py-3 text-green-700"
+              >
+                Profile updated successfully.
+              </div>
+            )}
+            {passwordError && (
+              <div
+                role="alert"
+                className="mb-4 rounded bg-red-100 px-4 py-3 text-red-700"
+              >
+                {passwordError}
+              </div>
+            )}
+            {picError && (
+              <div
+                role="alert"
+                className="mb-4 rounded bg-red-100 px-4 py-3 text-red-700"
+              >
+                {picError}
+              </div>
+            )}
+
+            {/* Name */}
+            <div className="mb-5">
+              <label htmlFor="name" className="block mb-2 font-semibold text-gray-700">
+                Name
+              </label>
+              <input
+                id="name"
+                type="text"
+                placeholder="Enter your full name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                aria-required="true"
+                className="w-full rounded border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* Email */}
+            <div className="mb-5">
+              <label htmlFor="email" className="block mb-2 font-semibold text-gray-700">
+                Email Address
+              </label>
+              <input
+                id="email"
+                type="email"
+                placeholder="Enter your email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                aria-required="true"
+                className="w-full rounded border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* Password */}
+            <div className="mb-5">
+              <label htmlFor="password" className="block mb-2 font-semibold text-gray-700">
+                New Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                placeholder="Enter new password (optional)"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                aria-describedby="passwordHelpBlock"
+                minLength={6}
+                className="w-full rounded border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+              <p
+                id="passwordHelpBlock"
+                className="mt-1 text-sm text-gray-500"
+              >
+                Leave blank if you don't want to change the password.
+              </p>
+            </div>
+
+            {/* Confirm Password */}
+            <div className="mb-5">
+              <label
+                htmlFor="confirmPassword"
+                className="block mb-2 font-semibold text-gray-700"
+              >
+                Confirm New Password
+              </label>
+              <input
+                id="confirmPassword"
+                type="password"
+                placeholder="Confirm new password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                minLength={6}
+                className="w-full rounded border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+            </div>
+
+            {/* Profile Picture */}
+            <div className="mb-5">
+              <label
+                htmlFor="pic"
+                className="block mb-2 font-semibold text-gray-700"
+              >
+                Profile Picture
+              </label>
+              <input
+                id="pic"
+                type="file"
+                accept="image/png, image/jpeg"
+                onChange={(e) => uploadProfilePicture(e.target.files[0])}
+                aria-describedby="picHelpBlock"
+                className="block w-full cursor-pointer rounded border border-gray-300 bg-white px-3 py-2 text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+              <p id="picHelpBlock" className="mt-1 text-sm text-gray-500">
+                Allowed formats: JPG, PNG.
+              </p>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading}
+              aria-disabled={loading}
+              className={`w-full rounded bg-blue-600 px-6 py-3 text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-blue-400`}
+            >
+              {loading ? "Updating..." : "Update Profile"}
+            </button>
+          </form>
+
+          {/* Profile Picture Preview */}
+          <div
+            className="flex flex-col items-center justify-center"
+            aria-label="Current profile picture"
+          >
+            <img
+              src={pic || "/default-profile.png"}
+              alt={`${name}'s profile`}
+              className="h-64 w-64 rounded-full object-cover shadow-md"
+              loading="lazy"
+            />
+            <small className="mt-3 text-gray-500">Current Profile Picture</small>
+          </div>
+        </div>
       </div>
     </MainScreen>
   );
