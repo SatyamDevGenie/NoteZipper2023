@@ -27,7 +27,7 @@ app.use(cors()); // Use the cors middleware
 app.use("/api/users", userRoutes);
 app.use("/api/notes", noteRoutes);
 
-// Create a static folder
+// Create a static folder - Ready for Deployment 
 const __dirname = path.resolve();
 app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
 
