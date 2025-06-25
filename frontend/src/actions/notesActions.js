@@ -30,7 +30,7 @@ export const listNotes = () => async (dispatch, getState) => {
       },
     };
 
-    const { data } = await axios.get(`/api/notes`, config);
+    const { data } = await axios.get(`https://notezipper-2la2.onrender.com/api/notes`, config);
 
     dispatch({
       type: NOTE_LIST_SUCCESS,
@@ -67,7 +67,7 @@ export const createNoteAction =
       };
 
       const { data } = await axios.post(
-        `/api/notes/create`,
+        `https://notezipper-2la2.onrender.com/api/notes/create`,
         { title, content, category },
         config
       );
@@ -107,7 +107,7 @@ export const updateNoteAction =
       };
 
       const { data } = await axios.put(
-        `/api/notes/${id}`,
+        `https://notezipper-2la2.onrender.com/api/notes/${id}`,
         { title, content, category },
         config
       );
@@ -144,7 +144,7 @@ export const deleteNoteAction = (id) => async (dispatch, getState) => {
       },
     };
 
-    const { data } = await axios.delete(`/api/notes/${id}`, config);
+    const { data } = await axios.delete(`https://notezipper-2la2.onrender.com/api/notes/${id}`, config);
 
     dispatch({
       type: NOTE_DELETE_SUCCESS,

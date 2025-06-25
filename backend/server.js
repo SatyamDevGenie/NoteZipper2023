@@ -15,7 +15,7 @@ connectDB();
 app.use(express.json()); // Request for json data
 
 const corsOptions = {
-  origin: "https://localhost:3000", // Replace with your Netlify URL
+  origin: "https://note-zipper", // Replace with your Netlify URL
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true, // Allow cookies if needed
   optionsSuccessStatus: 204,
@@ -32,10 +32,10 @@ const __dirname = path.resolve();
 app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
 
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "/frontend/dist")));
+  app.use(express.static(path.join(__dirname, "/frontend/build")));
 
   app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+    res.sendFile(path.resolve(__dirname, "frontend", "build", "index.html"));
   });
 } else {
   app.get("/", (req, res) => {
