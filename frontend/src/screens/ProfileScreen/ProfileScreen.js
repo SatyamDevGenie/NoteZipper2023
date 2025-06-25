@@ -31,15 +31,11 @@ const ProfileScreen = () => {
   }, [navigate, userInfo]);
 
   const uploadProfilePicture = async (file) => {
-    if (!file) {
-      setPicError("Please select an image.");
-      return;
-    }
+    if (!file) return setPicError("Please select an image.");
     setPicError(null);
 
-    if (file.type !== "image/jpeg" && file.type !== "image/png") {
-      setPicError("Only JPEG and PNG images are supported.");
-      return;
+    if (!["image/jpeg", "image/png"].includes(file.type)) {
+      return setPicError("Only JPEG and PNG images are supported.");
     }
 
     try {
@@ -48,164 +44,132 @@ const ProfileScreen = () => {
       formData.append("upload_preset", "notezipper");
       formData.append("cloud_name", "drhama97q");
 
-      const response = await fetch(
-        "https://api.cloudinary.com/v1_1/drhama97q/image/upload",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-      const data = await response.json();
+      const res = await fetch("https://api.cloudinary.com/v1_1/drhama97q/image/upload", {
+        method: "POST",
+        body: formData,
+      });
 
-      if (data.url) {
-        setPic(data.url.toString());
-      } else {
-        setPicError("Failed to upload image. Please try again.");
-      }
-    } catch (error) {
-      setPicError("An error occurred during image upload.");
-      console.error("Image upload error:", error);
+      const data = await res.json();
+      if (data.url) setPic(data.url.toString());
+      else setPicError("Failed to upload image.");
+    } catch (err) {
+      console.error(err);
+      setPicError("An error occurred during upload.");
     }
   };
 
   const submitHandler = (e) => {
     e.preventDefault();
     setPasswordError(null);
-
     if (password && password !== confirmPassword) {
-      setPasswordError("Passwords do not match.");
-      return;
+      return setPasswordError("Passwords do not match.");
     }
-
     dispatch(updateProfile({ name, email, password, pic }));
   };
 
   return (
     <MainScreen title="Edit Profile">
-      <div className="max-w-4xl mx-auto mt-8 p-6 bg-white rounded-lg shadow-md">
-        <div className="flex flex-col md:flex-row gap-8">
-          {/* Form Section */}
+      <div className="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8">
+        <div className="bg-white shadow-md rounded-lg p-6 sm:p-8 flex flex-col lg:flex-row gap-10">
+          {/* Form */}
           <form
             onSubmit={submitHandler}
-            aria-label="Update profile form"
-            className="flex-1"
+            className="w-full lg:w-2/3 space-y-5"
+            aria-label="Profile Form"
           >
+            {/* Alerts */}
             {loading && <Loading />}
             {error && (
-              <div
-                role="alert"
-                className="mb-4 rounded bg-red-100 px-4 py-3 text-red-700"
-              >
+              <div role="alert" className="bg-red-100 text-red-700 p-3 rounded">
                 {error}
               </div>
             )}
             {success && (
-              <div
-                role="alert"
-                className="mb-4 rounded bg-green-100 px-4 py-3 text-green-700"
-              >
+              <div role="alert" className="bg-green-100 text-green-700 p-3 rounded">
                 Profile updated successfully.
               </div>
             )}
             {passwordError && (
-              <div
-                role="alert"
-                className="mb-4 rounded bg-red-100 px-4 py-3 text-red-700"
-              >
+              <div role="alert" className="bg-red-100 text-red-700 p-3 rounded">
                 {passwordError}
               </div>
             )}
             {picError && (
-              <div
-                role="alert"
-                className="mb-4 rounded bg-red-100 px-4 py-3 text-red-700"
-              >
+              <div role="alert" className="bg-red-100 text-red-700 p-3 rounded">
                 {picError}
               </div>
             )}
 
             {/* Name */}
-            <div className="mb-5">
-              <label htmlFor="name" className="block mb-2 font-semibold text-gray-700">
+            <div>
+              <label htmlFor="name" className="block font-medium text-gray-700 mb-1">
                 Name
               </label>
               <input
                 id="name"
                 type="text"
-                placeholder="Enter your full name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                placeholder="Enter full name"
+                className="w-full border rounded px-4 py-2 focus:ring-2 focus:ring-blue-500"
                 required
-                aria-required="true"
-                className="w-full rounded border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
             {/* Email */}
-            <div className="mb-5">
-              <label htmlFor="email" className="block mb-2 font-semibold text-gray-700">
+            <div>
+              <label htmlFor="email" className="block font-medium text-gray-700 mb-1">
                 Email Address
               </label>
               <input
                 id="email"
                 type="email"
-                placeholder="Enter your email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter email"
+                className="w-full border rounded px-4 py-2 focus:ring-2 focus:ring-blue-500"
                 required
-                aria-required="true"
-                className="w-full rounded border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
             {/* Password */}
-            <div className="mb-5">
-              <label htmlFor="password" className="block mb-2 font-semibold text-gray-700">
+            <div>
+              <label htmlFor="password" className="block font-medium text-gray-700 mb-1">
                 New Password
               </label>
               <input
                 id="password"
                 type="password"
-                placeholder="Enter new password (optional)"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                aria-describedby="passwordHelpBlock"
+                placeholder="Enter new password (optional)"
                 minLength={6}
-                className="w-full rounded border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full border rounded px-4 py-2 focus:ring-2 focus:ring-blue-500"
               />
-              <p
-                id="passwordHelpBlock"
-                className="mt-1 text-sm text-gray-500"
-              >
-                Leave blank if you don't want to change the password.
+              <p className="text-xs text-gray-500 mt-1">
+                Leave blank if you don’t want to change it.
               </p>
             </div>
 
             {/* Confirm Password */}
-            <div className="mb-5">
-              <label
-                htmlFor="confirmPassword"
-                className="block mb-2 font-semibold text-gray-700"
-              >
+            <div>
+              <label htmlFor="confirmPassword" className="block font-medium text-gray-700 mb-1">
                 Confirm New Password
               </label>
               <input
                 id="confirmPassword"
                 type="password"
-                placeholder="Confirm new password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirm password"
                 minLength={6}
-                className="w-full rounded border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full border rounded px-4 py-2 focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
-            {/* Profile Picture */}
-            <div className="mb-5">
-              <label
-                htmlFor="pic"
-                className="block mb-2 font-semibold text-gray-700"
-              >
+            {/* Upload Picture */}
+            <div>
+              <label htmlFor="pic" className="block font-medium text-gray-700 mb-1">
                 Profile Picture
               </label>
               <input
@@ -213,37 +177,31 @@ const ProfileScreen = () => {
                 type="file"
                 accept="image/png, image/jpeg"
                 onChange={(e) => uploadProfilePicture(e.target.files[0])}
-                aria-describedby="picHelpBlock"
-                className="block w-full cursor-pointer rounded border border-gray-300 bg-white px-3 py-2 text-gray-700 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-700"
               />
-              <p id="picHelpBlock" className="mt-1 text-sm text-gray-500">
-                Allowed formats: JPG, PNG.
-              </p>
+              <p className="text-xs text-gray-500 mt-1">Allowed formats: JPG, PNG.</p>
             </div>
 
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              aria-disabled={loading}
-              className={`w-full rounded bg-blue-600 px-6 py-3 text-white transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-blue-400`}
-            >
-              {loading ? "Updating..." : "Update Profile"}
-            </button>
+            {/* Submit */}
+            <div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-30 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-md transition"
+              >
+                {loading ? "Updating..." : "Update Profile"}
+              </button>
+            </div>
           </form>
 
           {/* Profile Picture Preview */}
-          <div
-            className="flex flex-col items-center justify-center"
-            aria-label="Current profile picture"
-          >
+          <div className="w-full lg:w-1/3 flex flex-col items-center justify-center">
             <img
               src={pic || "/default-profile.png"}
               alt={`${name}'s profile`}
-              className="h-64 w-64 rounded-full object-cover shadow-md"
-              loading="lazy"
+              className="w-48 h-48 rounded-full object-cover shadow-md"
             />
-            <small className="mt-3 text-gray-500">Current Profile Picture</small>
+            <span className="mt-4 text-gray-600 text-sm">Current Profile Picture</span>
           </div>
         </div>
       </div>

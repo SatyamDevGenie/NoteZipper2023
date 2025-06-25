@@ -13,7 +13,6 @@ const Header = ({ setSearch }) => {
 
   const dropdownRef = useRef(null);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -41,7 +40,7 @@ const Header = ({ setSearch }) => {
           {/* Logo */}
           <Link
             to="/"
-            className="text-2xl font-extrabold tracking-tight hover:text-blue-300 transition-colors duration-300"
+            className="text-3xl font-extrabold tracking-tight hover:text-blue-300 transition-colors duration-300"
             aria-label="NoteZipper Home"
           >
             NoteZipper
@@ -60,7 +59,7 @@ const Header = ({ setSearch }) => {
 
           {/* Desktop Navigation */}
           <div className="hidden sm:flex items-center space-x-8 font-semibold">
-            {userInfo && (
+            {userInfo ? (
               <>
                 <Link
                   to="/mynotes"
@@ -119,6 +118,13 @@ const Header = ({ setSearch }) => {
                   )}
                 </div>
               </>
+            ) : (
+              <Link
+                to="/login"
+                className="text-white font-semibold text-lg"
+              >
+                Login
+              </Link>
             )}
           </div>
 
@@ -158,7 +164,7 @@ const Header = ({ setSearch }) => {
       </div>
 
       {/* Mobile Menu */}
-      {mobileMenuOpen && userInfo && (
+      {mobileMenuOpen && (
         <div
           id="mobile-menu"
           className="sm:hidden bg-blue-700 px-4 pt-4 pb-6 space-y-4 border-t border-blue-600"
@@ -171,28 +177,40 @@ const Header = ({ setSearch }) => {
             aria-label="Search notes"
           />
 
-          <Link
-            to="/mynotes"
-            className="block text-white font-semibold hover:text-blue-300 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-400 rounded"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            My Notes
-          </Link>
+          {userInfo ? (
+            <>
+              <Link
+                to="/mynotes"
+                className="block text-white font-semibold hover:text-blue-300 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-400 rounded"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                My Notes
+              </Link>
 
-          <Link
-            to="/profile"
-            className="block text-white font-semibold hover:text-blue-300 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-400 rounded"
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            My Profile
-          </Link>
+              <Link
+                to="/profile"
+                className="block text-white font-semibold hover:text-blue-300 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-400 rounded"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                My Profile
+              </Link>
 
-          <button
-            onClick={logoutHandler}
-            className="w-full text-left text-white font-semibold hover:text-blue-300 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-400 rounded"
-          >
-            Logout
-          </button>
+              <button
+                onClick={logoutHandler}
+                className="w-full text-left text-white font-semibold hover:text-blue-300 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-400 rounded"
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <Link
+              to="/login"
+              className="block text-white font-semibold hover:text-blue-300 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-400 rounded"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Sign In
+            </Link>
+          )}
         </div>
       )}
     </nav>
@@ -200,3 +218,6 @@ const Header = ({ setSearch }) => {
 };
 
 export default Header;
+
+
+

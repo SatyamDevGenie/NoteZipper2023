@@ -10,24 +10,15 @@ const MyNotes = ({ search }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const noteList = useSelector((state) => state.noteList);
-  const { loading, error, notes } = noteList;
-
-  const userLogin = useSelector((state) => state.userLogin);
-  const { userInfo } = userLogin;
-
-  const noteCreate = useSelector((state) => state.noteCreate);
-  const { success: successCreate } = noteCreate;
-
-  const noteUpdate = useSelector((state) => state.noteUpdate);
-  const { success: successUpdate } = noteUpdate;
-
-  const noteDelete = useSelector((state) => state.noteDelete);
+  const { loading, error, notes } = useSelector((state) => state.noteList);
+  const { userInfo } = useSelector((state) => state.userLogin);
+  const { success: successCreate } = useSelector((state) => state.noteCreate);
+  const { success: successUpdate } = useSelector((state) => state.noteUpdate);
   const {
     loading: loadingDelete,
     error: errorDelete,
     success: successDelete,
-  } = noteDelete;
+  } = useSelector((state) => state.noteDelete);
 
   useEffect(() => {
     if (!userInfo) {
@@ -43,92 +34,89 @@ const MyNotes = ({ search }) => {
     }
   };
 
-  const filteredNotes = notes
-    ? notes.filter((note) =>
-        note.title.toLowerCase().includes(search.toLowerCase())
-      )
-    : [];
+  const filteredNotes = notes?.filter((note) =>
+    note.title.toLowerCase().includes(search.toLowerCase())
+  ) || [];
 
   return (
-    <MainScreen
-      title={`Welcome Back${userInfo ? ", " + userInfo.name : ""}!`}
-      className="px-4 sm:px-6 lg:px-0"
-    >
-      <div className="flex justify-between items-center flex-wrap gap-4 mb-8">
-        <Link to="/createnote" className="w-full sm:w-auto">
-          <button className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 transition text-white font-semibold px-6 py-3 rounded shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400">
-            Create New Note
+    <MainScreen title={`Welcome back${userInfo ? ", " + userInfo.name : ""}!`}>
+      {/* Create Note CTA */}
+      <div className="flex justify-end mb-6 px-2 sm:px-0">
+        <Link to="/createnote">
+          <button className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md shadow transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-400">
+            + Create New Note
           </button>
         </Link>
       </div>
 
-      {errorDelete && (
-        <ErrorMessage variant="danger">{errorDelete}</ErrorMessage>
-      )}
+      {/* Messages */}
+      {errorDelete && <ErrorMessage variant="danger">{errorDelete}</ErrorMessage>}
       {loadingDelete && <Loading />}
       {error && <ErrorMessage variant="danger">{error}</ErrorMessage>}
       {loading && <Loading />}
 
-      {filteredNotes.length === 0 && !loading && (
-        <p className="text-gray-500 text-center text-base sm:text-lg mt-8">
-          No notes found matching your search.
+      {/* No Notes */}
+      {!loading && filteredNotes.length === 0 && (
+        <p className="text-center text-gray-500 text-base sm:text-lg mt-10">
+          📭 No notes found matching your search.
         </p>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Notes Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-2 sm:px-0">
         {filteredNotes
           .slice()
           .reverse()
           .map((note) => (
             <div
               key={note._id}
-              className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 flex flex-col"
+              className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 border border-gray-100 flex flex-col overflow-hidden"
             >
-              <div className="px-6 py-4 flex justify-between items-center border-b border-gray-200 cursor-pointer group">
+              {/* Note Header */}
+              <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                 <h2
-                  className="text-base sm:text-lg font-semibold text-gray-900 truncate max-w-[70%]"
+                  className="text-lg font-semibold text-gray-800 truncate max-w-[70%]"
                   title={note.title}
                 >
                   {note.title}
                 </h2>
-                <span className="inline-block bg-indigo-600 text-white text-xs sm:text-sm font-bold px-3 py-1 rounded-full uppercase tracking-wider whitespace-nowrap">
+                <span className="bg-indigo-600 text-white text-xs font-medium px-3 py-1 rounded-full uppercase tracking-wide">
                   {note.category}
                 </span>
               </div>
 
+              {/* Note Content */}
               <div className="px-6 py-4 flex-grow">
-                <p className="text-gray-700 whitespace-pre-wrap text-sm sm:text-base leading-relaxed break-words">
-                  {note.content.length > 150
-                    ? note.content.slice(0, 150) + "..."
+                <p className="text-gray-700 text-sm whitespace-pre-wrap break-words leading-relaxed">
+                  {note.content.length > 180
+                    ? `${note.content.slice(0, 180)}...`
                     : note.content}
                 </p>
               </div>
 
-              <footer className="px-6 py-3 border-t border-gray-200 text-gray-500 text-xs sm:text-sm italic flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
-                <span className="whitespace-nowrap">
-                  Created On{" "}
+              {/* Note Footer */}
+              <div className="px-6 py-3 border-t border-gray-200 text-xs sm:text-sm text-gray-500 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
+                <span className="italic">
+                  Created on{" "}
                   <time dateTime={note.createdAt}>
                     {note.createdAt.substring(0, 10)}
                   </time>
                 </span>
-
-                <div className="flex space-x-4">
+                <div className="flex gap-4 text-sm font-medium">
                   <Link
                     to={`/note/${note._id}`}
-                    className="text-blue-600 hover:text-blue-800 font-semibold transition focus:outline-none focus:ring-2 focus:ring-blue-400 rounded"
-                    aria-label={`Edit note titled ${note.title}`}
+                    className="text-blue-600 hover:text-blue-800 transition"
                   >
                     Edit
                   </Link>
                   <button
                     onClick={() => deleteHandler(note._id)}
-                    className="text-red-600 hover:text-red-800 font-semibold transition focus:outline-none focus:ring-2 focus:ring-red-400 rounded"
-                    aria-label={`Delete note titled ${note.title}`}
+                    className="text-red-600 hover:text-red-800 transition"
                   >
                     Delete
                   </button>
                 </div>
-              </footer>
+              </div>
             </div>
           ))}
       </div>
