@@ -7,8 +7,14 @@
   "scripts": {
     "start": "node backend/server",
     "server": "nodemon backend/server",
-    "client": "npm start --prefix frontend",
-    "dev": "concurrently \"npm run server\" \"npm run client\""
+    "client": "npm run dev --prefix frontend",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "frontend": "npm run dev --prefix frontend",
+    "backend": "npm run server",
+    "build": "npm run build --prefix frontend",
+    "install-client": "npm install --prefix frontend",
+    "install-server": "npm install",
+    "install-all": "npm run install-server && npm run install-client"
   },
   "author": "Satyam Subhash Sawant",
   "license": "ISC",

@@ -1,28 +1,32 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { register } from "../../actions/userActions";
-import ErrorMessage from "../../components/ErrorMessage";
-import Loading from "../../components/Loading";
-import MainScreen from "../../components/MainScreen";
 import { motion } from "framer-motion";
+import toast from "react-hot-toast";
+import { registerUser, clearError } from "../../store/slices/authSlice";
+import { fileToCompressedBase64 } from "../../utils/imageCompression";
+import Input from "../../components/ui/Input";
+import Button from "../../components/ui/Button";
+import Card from "../../components/ui/Card";
+import LoadingSpinner from "../../components/ui/LoadingSpinner";
 
 const RegisterScreen = () => {
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
   const [pic, setPic] = useState(
     "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg"
   );
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [message, setMessage] = useState("");
-  const [picMessage, setPicMessage] = useState("");
+  const [validationErrors, setValidationErrors] = useState({});
+  const [picLoading, setPicLoading] = useState(false);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const userRegister = useSelector((state) => state.userRegister);
-  const { loading, error, userInfo } = userRegister;
+  const { loading, error, userInfo } = useSelector((state) => state.auth);
 
   useEffect(() => {
     if (userInfo) {
@@ -30,146 +34,244 @@ const RegisterScreen = () => {
     }
   }, [navigate, userInfo]);
 
-  const submitHandler = async (e) => {
-    e.preventDefault();
-    if (password !== confirmPassword) {
-      setMessage("Passwords do not match");
-    } else {
-      dispatch(register(name, email, password, pic));
+  useEffect(() => {
+    return () => {
+      dispatch(clearError());
+    };
+  }, [dispatch]);
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const validateForm = () => {
+    const errors = {};
+    
+    if (!formData.name.trim()) {
+      errors.name = "Name is required";
+    }
+    
+    if (!formData.email.trim()) {
+      errors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      errors.email = "Email is invalid";
+    }
+    
+    if (!formData.password.trim()) {
+      errors.password = "Password is required";
+    } else if (formData.password.length < 6) {
+      errors.password = "Password must be at least 6 characters";
+    }
+    
+    if (formData.password !== formData.confirmPassword) {
+      errors.confirmPassword = "Passwords do not match";
+    }
+    
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const postDetails = async (pics) => {
+    if (!pics) return;
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(pics.type)) {
+      setValidationErrors({ ...validationErrors, pic: "Only JPEG, PNG, and WebP images are supported." });
+      toast.error('Only JPEG, PNG, and WebP images are supported');
+      return;
+    }
+
+    // Validate file size (max 10MB before compression)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (pics.size > maxSize) {
+      setValidationErrors({ ...validationErrors, pic: "File size must be less than 10MB." });
+      toast.error('File size must be less than 10MB');
+      return;
+    }
+
+    try {
+      setPicLoading(true);
+      
+      // Method 1: Try Cloudinary upload first (smaller file)
+      try {
+        const formData = new FormData();
+        formData.append('file', pics);
+        formData.append('upload_preset', 'notezipper');
+
+        const response = await fetch(
+          'https://api.cloudinary.com/v1_1/drhama97q/image/upload',
+          {
+            method: 'POST',
+            body: formData,
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.secure_url) {
+            setPic(data.secure_url);
+            setValidationErrors({ ...validationErrors, pic: undefined });
+            toast.success('Image uploaded successfully!');
+            return;
+          }
+        }
+      } catch (cloudinaryError) {
+        console.log('Cloudinary upload failed, trying compression...');
+      }
+
+      // Method 2: Compress and use base64 as fallback
+      const compressedBase64 = await fileToCompressedBase64(pics);
+      setPic(compressedBase64);
+      setValidationErrors({ ...validationErrors, pic: undefined });
+      toast.success('Image processed successfully!');
+
+    } catch (err) {
+      console.error('Upload error:', err);
+      setValidationErrors({ ...validationErrors, pic: "Failed to process image." });
+      toast.error('Failed to process image. Please try a smaller image.');
+    } finally {
+      setPicLoading(false);
     }
   };
 
-  const postDetails = (pics) => {
-    if (!pics) return setPicMessage("Please select an image");
-    setPicMessage(null);
-
-    if (pics.type === "image/jpeg" || pics.type === "image/png") {
-      const data = new FormData();
-      data.append("file", pics);
-      data.append("upload_preset", "notezipper");
-      data.append("cloud_name", "deli6jgkk");
-
-      fetch("https://api.cloudinary.com/v1_1/deli6jgkk/image/upload", {
-        method: "post",
-        body: data,
-      })
-        .then((res) => res.json())
-        .then((data) => setPic(data.url.toString()))
-        .catch((err) => console.log(err));
-    } else {
-      return setPicMessage("Please select a valid image format (JPEG/PNG)");
+  const submitHandler = async (e) => {
+    e.preventDefault();
+    
+    if (validateForm()) {
+      dispatch(registerUser({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        pic,
+      }));
     }
   };
 
   return (
-    <MainScreen title="REGISTER">
+    <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-gradient-to-br from-blue-50 to-indigo-100">
       <motion.div
-        className="flex justify-center items-center min-h-screen bg-gray-50 px-4"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
+        className="w-full max-w-lg"
       >
-        <div className="w-full max-w-lg bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
-          <h2 className="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-6">
-            Create Your Account
-          </h2>
+        <Card className="shadow-xl">
+          <div className="text-center mb-8">
+            <motion.div
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2 }}
+            >
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
+              <p className="text-gray-600">Join NoteZipper today</p>
+            </motion.div>
+          </div>
 
-          {loading && <Loading />}
-          {error && <ErrorMessage variant="danger">{error}</ErrorMessage>}
-          {message && <ErrorMessage variant="danger">{message}</ErrorMessage>}
-          {picMessage && (
-            <ErrorMessage variant="danger">{picMessage}</ErrorMessage>
-          )}
+          <form onSubmit={submitHandler} className="space-y-5">
+            <Input
+              label="Full Name"
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Enter your full name"
+              error={validationErrors.name}
+              required
+            />
 
-          <form onSubmit={submitHandler} className="space-y-6">
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                Full Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                placeholder="Enter your full name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+            <Input
+              label="Email Address"
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Enter your email"
+              error={validationErrors.email}
+              required
+            />
 
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email Address
-              </label>
-              <input
-                type="email"
-                id="email"
-                placeholder="email@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+            <Input
+              label="Password"
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Create a password"
+              error={validationErrors.password}
+              required
+            />
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <input
-                type="password"
-                id="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+            <Input
+              label="Confirm Password"
+              type="password"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              placeholder="Confirm your password"
+              error={validationErrors.confirmPassword}
+              required
+            />
 
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                Confirm Password
-              </label>
-              <input
-                type="password"
-                id="confirmPassword"
-                placeholder="••••••••"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="formFile" className="block text-sm font-medium text-gray-700">
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">
                 Profile Picture
               </label>
-              <input
-                type="file"
-                id="formFile"
-                accept="image/*"
-                onChange={(e) => postDetails(e.target.files[0])}
-                className="mt-1 block w-full text-sm border border-gray-300 rounded-md p-2 bg-gray-50"
-              />
+              <div className="flex items-center space-x-4">
+                <img
+                  src={pic}
+                  alt="Profile preview"
+                  className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
+                />
+                <div className="flex-1">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => postDetails(e.target.files[0])}
+                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
+                  />
+                  {picLoading && (
+                    <div className="mt-2">
+                      <LoadingSpinner size="sm" />
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
 
-            <button
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                {error}
+              </div>
+            )}
+
+            <Button
               type="submit"
-              className="w-full py-3 bg-blue-600 text-white font-semibold text-lg rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-md"
+              loading={loading}
+              className="w-full"
+              size="lg"
             >
-              Register
-            </button>
+              Create Account
+            </Button>
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-gray-600">
               Already have an account?{" "}
-              <Link to="/login" className="font-medium text-blue-600 hover:underline">
-                Login Here
+              <Link
+                to="/login"
+                className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+              >
+                Sign in here
               </Link>
             </p>
           </div>
-        </div>
+        </Card>
       </motion.div>
-    </MainScreen>
+    </div>
   );
 };
 

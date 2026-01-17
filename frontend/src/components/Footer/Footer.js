@@ -1,29 +1,29 @@
 import React from "react";
-import { Container, Row, Col } from "react-bootstrap";
 
 const Footer = () => {
   return (
-    <footer className="bg-black text-white py-4 mt-0 shadow-lg">
-      <Container>
-        <Row className="text-center text-md-start align-items-center">
+    <footer className="bg-gray-900 text-white py-8 mt-auto">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row justify-between items-center">
           {/* Left Side: Branding */}
-          <Col xs={12} md={6} className="mb-3 mb-md-0">
-            <h5 className="fw-bold mb-1" style={{ fontFamily: "Georgia, serif" }}>
+          <div className="mb-4 md:mb-0 text-center md:text-left">
+            <h5 className="text-xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
               NoteZipper
             </h5>
-            <p className="mb-0 text-muted mt-3" style={{ fontSize: "0.95rem" }}>
+            <p className="text-gray-400 text-sm">
               Secure your thoughts, organize your mind.
             </p>
-          </Col>
+          </div>
 
           {/* Right Side: Copyright */}
-          <Col xs={12} md={6} className="text-center text-lg-end">
-            <p className="mb-0 text-muted" style={{ fontSize: "0.9rem" }}>
-              &copy; {new Date().getFullYear()} NoteZipper — Created by <strong>Satyam Sawant</strong>
+          <div className="text-center md:text-right">
+            <p className="text-gray-400 text-sm">
+              &copy; {new Date().getFullYear()} NoteZipper — Created by{" "}
+              <span className="font-semibold text-white">Satyam Sawant</span>
             </p>
-          </Col>
-        </Row>
-      </Container>
+          </div>
+        </div>
+      </div>
     </footer>
   );
 };
