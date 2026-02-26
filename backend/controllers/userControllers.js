@@ -1,6 +1,7 @@
 import User from "../models/userModel.js";
 import asyncHandler from "express-async-handler";
 import generateToken from "../utils/generateToken.js";
+import { sendFirstLoginEmail } from "../utils/sendEmail.js";
 
 // User Registration Functionality
 const registerUser = asyncHandler(async (req, res) => {
@@ -45,6 +46,14 @@ const authUser = asyncHandler(async (req, res) => {
   const user = await User.findOne({ email });
 
   if (user && (await user.matchPassword(password))) {
+    // Send welcome email on first login (from satyamsawant54@gmail.com)
+    if (!user.firstLoginEmailSent) {
+      const sent = await sendFirstLoginEmail(user.email, user.name);
+      if (sent) {
+        user.firstLoginEmailSent = true;
+        await user.save();
+      }
+    }
     res.json({
       _id: user._id,
       name: user.name,

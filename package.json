@@ -27,6 +27,7 @@
     "express-async-handler": "^1.2.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.0.3",
+    "nodemailer": "^6.10.1",
     "redux-devtools-extension": "^2.13.9"
   },
   "devDependencies": {
