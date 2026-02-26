@@ -78,7 +78,7 @@ const LoginScreen = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white overflow-hidden">
+    <div className="min-h-screen bg-theme overflow-hidden">
 
       <div className="relative z-10 min-h-screen flex items-center justify-center px-4 py-12">
         <motion.div
@@ -94,7 +94,7 @@ const LoginScreen = () => {
             transition={{ delay: 0.2 }}
             className="text-center mb-8"
           >
-            <Link to="/" className="inline-flex items-center space-x-3 text-2xl font-bold tracking-tight text-gray-900">
+            <Link to="/" className="inline-flex items-center space-x-3 text-2xl font-bold tracking-tight text-theme">
               <div className="p-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl">
                 <SparklesIcon className="w-8 h-8 text-white" />
               </div>
@@ -111,8 +111,8 @@ const LoginScreen = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
-                <p className="text-gray-600">Sign in to your premium workspace</p>
+                <h1 className="text-3xl font-bold text-theme mb-2">Welcome Back</h1>
+                <p className="text-theme-muted">Sign in to your premium workspace</p>
               </motion.div>
             </div>
 
@@ -132,7 +132,7 @@ const LoginScreen = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200"
+                  className="w-full px-4 py-3 bg-theme-input border border-theme rounded-lg text-theme placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200"
                   required
                 />
                 {validationErrors.email && (
@@ -156,7 +156,7 @@ const LoginScreen = () => {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-theme-muted hover:text-theme"
                   >
                     {showPassword ? (
                       <EyeSlashIcon className="w-5 h-5" />
@@ -198,10 +198,10 @@ const LoginScreen = () => {
             >
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300"></div>
+                  <div className="w-full border-t border-theme"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">New to NoteZipper?</span>
+                  <span className="px-2 bg-theme-card text-theme-muted">New to NoteZipper?</span>
                 </div>
               </div>
 

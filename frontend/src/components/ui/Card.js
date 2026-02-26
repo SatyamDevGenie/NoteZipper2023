@@ -15,7 +15,7 @@ const Card = ({
   };
 
   const baseClasses = `
-    bg-white rounded-xl shadow-md border border-gray-100 transition-all duration-200
+    bg-theme-card rounded-xl shadow-md border border-theme transition-all duration-200
     ${hover ? 'hover:shadow-lg hover:-translate-y-1' : ''}
     ${paddingClasses[padding]}
     ${className}

@@ -191,7 +191,7 @@ function SingleNote() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-theme py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -200,8 +200,8 @@ function SingleNote() {
         >
           {/* Header */}
           <div className="mb-6">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Edit Note</h1>
-            <p className="text-gray-600">Make changes to your note</p>
+            <h1 className="text-3xl font-bold text-theme mb-2">Edit Note</h1>
+            <p className="text-theme-muted">Make changes to your note</p>
           </div>
 
           {/* Summarize + result */}
@@ -221,8 +221,8 @@ function SingleNote() {
               Summarize note
             </Button>
             {summary && (
-              <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-                <p className="text-sm font-medium text-gray-600 mb-1">Summary</p>
+              <div className="rounded-lg border border-theme bg-theme-card p-4">
+                <p className="text-sm font-medium text-theme-muted mb-1">Summary</p>
                 <p className="text-gray-800">{summary}</p>
               </div>
             )}
@@ -290,7 +290,7 @@ function SingleNote() {
                   <div className="inline-flex rounded-lg border border-gray-300 bg-white p-1">
                     <button
                       type="button"
-                      className="px-2 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded disabled:opacity-50"
+                      className="px-2 py-1 text-sm text-theme hover:bg-theme-tertiary rounded disabled:opacity-50"
                       disabled={!formData.content?.trim() || !!aiLoading}
                       onClick={() => handleImprove("grammar")}
                     >
@@ -298,7 +298,7 @@ function SingleNote() {
                     </button>
                     <button
                       type="button"
-                      className="px-2 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded disabled:opacity-50"
+                      className="px-2 py-1 text-sm text-theme hover:bg-theme-tertiary rounded disabled:opacity-50"
                       disabled={!formData.content?.trim() || !!aiLoading}
                       onClick={() => handleImprove("formal")}
                     >
@@ -306,7 +306,7 @@ function SingleNote() {
                     </button>
                     <button
                       type="button"
-                      className="px-2 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded disabled:opacity-50"
+                      className="px-2 py-1 text-sm text-theme hover:bg-theme-tertiary rounded disabled:opacity-50"
                       disabled={!formData.content?.trim() || !!aiLoading}
                       onClick={() => handleImprove("simple")}
                     >
@@ -358,8 +358,8 @@ function SingleNote() {
                   {/* Preview */}
                   {showPreview && (
                     <div className="lg:block">
-                      <div className="border border-gray-300 rounded-lg p-4 h-80 overflow-y-auto bg-gray-50">
-                        <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center">
+                      <div className="border border-theme rounded-lg p-4 h-80 overflow-y-auto bg-theme-input">
+                        <h4 className="text-sm font-medium text-theme-muted mb-3 flex items-center">
                           <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -380,7 +380,7 @@ function SingleNote() {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+              <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-theme">
                 <Button
                   type="submit"
                   loading={loading}
@@ -409,7 +409,7 @@ function SingleNote() {
             </form>
 
             {/* Footer */}
-            <div className="mt-6 pt-6 border-t border-gray-200 text-center text-sm text-gray-500">
+            <div className="mt-6 pt-6 border-t border-theme text-center text-sm text-theme-muted">
               Last updated: {date ? new Date(date).toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'long',

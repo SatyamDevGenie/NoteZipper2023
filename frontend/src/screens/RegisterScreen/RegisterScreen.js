@@ -166,8 +166,8 @@ const RegisterScreen = () => {
               animate={{ scale: 1 }}
               transition={{ delay: 0.2 }}
             >
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
-              <p className="text-gray-600">Join NoteZipper today</p>
+              <h1 className="text-3xl font-bold text-theme mb-2">Create Account</h1>
+              <p className="text-theme-muted">Join NoteZipper today</p>
             </motion.div>
           </div>
 
@@ -217,7 +217,7 @@ const RegisterScreen = () => {
             />
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-theme-muted">
                 Profile Picture
               </label>
               <div className="flex items-center space-x-4">
@@ -259,7 +259,7 @@ const RegisterScreen = () => {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-gray-600">
+            <p className="text-theme-muted">
               Already have an account?{" "}
               <Link
                 to="/login"

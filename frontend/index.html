@@ -2,6 +2,17 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <script>
+      (function () {
+        var key = 'notezipper-theme';
+        var themes = ['light', 'dark', 'classic'];
+        try {
+          var stored = localStorage.getItem(key);
+          if (themes.indexOf(stored) >= 0) document.documentElement.setAttribute('data-theme', stored);
+          else document.documentElement.setAttribute('data-theme', 'light');
+        } catch (e) { document.documentElement.setAttribute('data-theme', 'light'); }
+      })();
+    </script>
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />

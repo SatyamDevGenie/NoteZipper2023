@@ -93,7 +93,7 @@ const LandingPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white overflow-hidden">
+    <div className="min-h-screen bg-theme overflow-hidden">
 
       {/* Hero Section */}
       <div className="relative z-10">
@@ -117,7 +117,7 @@ const LandingPage = () => {
                 </span>
               </h1>
 
-              <p className="text-xl sm:text-2xl text-gray-600 mb-8 max-w-4xl mx-auto leading-relaxed">
+              <p className="text-xl sm:text-2xl text-theme-muted mb-8 max-w-4xl mx-auto leading-relaxed">
                 Transform your thoughts into actionable insights with AI-powered organization,
                 enterprise-grade security, and seamless collaboration tools.
               </p>
@@ -183,7 +183,7 @@ const LandingPage = () => {
       </div>
 
       {/* Features Section */}
-      <div className="relative z-10 py-20 bg-gray-50">
+      <div className="relative z-10 py-20 bg-theme-tertiary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial="hidden"
@@ -195,7 +195,7 @@ const LandingPage = () => {
             <motion.h2 variants={itemVariants} className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
               Enterprise-Grade Features
             </motion.h2>
-            <motion.p variants={itemVariants} className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <motion.p variants={itemVariants} className="text-xl text-theme-muted max-w-3xl mx-auto">
               Built for professionals who demand the best. Every feature designed with security, performance, and user experience in mind.
             </motion.p>
           </motion.div>

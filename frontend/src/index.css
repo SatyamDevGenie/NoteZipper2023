@@ -2,6 +2,81 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ========== Theme: Light (default) ========== */
+:root,
+[data-theme="light"] {
+  --bg-primary: #f9fafb;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f3f4f6;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --border-color: #e5e7eb;
+  --header-bg: rgba(255, 255, 255, 0.95);
+  --card-bg: #ffffff;
+  --input-bg: #f9fafb;
+  --scrollbar-track: #f3f4f6;
+  --scrollbar-thumb: #d1d5db;
+  --scrollbar-thumb-hover: #9ca3af;
+}
+
+/* ========== Theme: Dark ========== */
+[data-theme="dark"] {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --border-color: #334155;
+  --header-bg: rgba(15, 23, 42, 0.95);
+  --card-bg: #1e293b;
+  --input-bg: #334155;
+  --scrollbar-track: #1e293b;
+  --scrollbar-thumb: #475569;
+  --scrollbar-thumb-hover: #64748b;
+}
+
+/* ========== Theme: Classic (warm paper) ========== */
+[data-theme="classic"] {
+  --bg-primary: #faf8f5;
+  --bg-secondary: #f5f0e8;
+  --bg-tertiary: #ebe5dc;
+  --text-primary: #3d3630;
+  --text-secondary: #6b635b;
+  --border-color: #d4cdc4;
+  --header-bg: rgba(250, 248, 245, 0.95);
+  --card-bg: #f5f0e8;
+  --input-bg: #faf8f5;
+  --scrollbar-track: #ebe5dc;
+  --scrollbar-thumb: #d4cdc4;
+  --scrollbar-thumb-hover: #b8afa3;
+}
+
+/* Theme-aware utility classes */
+.bg-theme {
+  background-color: var(--bg-primary);
+}
+.bg-theme-card {
+  background-color: var(--card-bg);
+}
+.bg-theme-input {
+  background-color: var(--input-bg);
+}
+.bg-theme-tertiary {
+  background-color: var(--bg-tertiary);
+}
+.text-theme {
+  color: var(--text-primary);
+}
+.text-theme-muted {
+  color: var(--text-secondary);
+}
+.border-theme {
+  border-color: var(--border-color);
+}
+.bg-theme-header {
+  background-color: var(--header-bg);
+}
+
 /* Custom utilities */
 @layer utilities {
   .line-clamp-1 {
@@ -109,30 +184,34 @@
   }
   
   body {
-    @apply font-sans antialiased bg-gray-50 text-gray-900;
+    font-family: inherit;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
   
   h1, h2, h3, h4, h5, h6 {
     @apply font-semibold;
   }
   
-  /* Scrollbar styles */
+  /* Scrollbar styles (theme-aware) */
   ::-webkit-scrollbar {
     width: 6px;
   }
   
   ::-webkit-scrollbar-track {
-    @apply bg-gray-100;
+    background-color: var(--scrollbar-track);
   }
   
   ::-webkit-scrollbar-thumb {
-    @apply bg-gray-300 rounded-full;
+    background-color: var(--scrollbar-thumb);
+    border-radius: 9999px;
   }
   
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-gray-400;
+    background-color: var(--scrollbar-thumb-hover);
   }
 
   /* Mobile touch improvements */

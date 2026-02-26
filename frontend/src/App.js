@@ -5,9 +5,11 @@ import { Toaster } from "react-hot-toast";
 import { useState } from "react";
 
 import store from "./store";
+import { ThemeProvider } from "./context/ThemeContext";
 import Header from "./components/Header/Header";
 import Footer from "./components/Footer/Footer";
 import AIAssistant from "./components/AIAssistant/AIAssistant";
+import ThemeSwitcher from "./components/ThemeSwitcher/ThemeSwitcher";
 import CreateNote from "./screens/CreateNote/CreateNote";
 import LandingPage from "./screens/LandingPage/LandingPage";
 import LoginScreen from "./screens/LoginScreen/LoginScreen";
@@ -21,9 +23,10 @@ function App() {
 
   return (
     <Provider store={store}>
-      <BrowserRouter>
-        <div className="min-h-screen bg-gray-50 flex flex-col">
-          <Header setSearch={(s) => setSearch(s)} />
+      <ThemeProvider>
+        <BrowserRouter>
+          <div className="min-h-screen bg-theme flex flex-col transition-colors duration-200">
+            <Header setSearch={(s) => setSearch(s)} />
           <main className="flex-1 pt-16">
             <Routes>
               <Route path="/" element={<LandingPage />} />
@@ -36,9 +39,9 @@ function App() {
             </Routes>
           </main>
           <Footer />
-          <AIAssistant />
-        </div>
-        <Toaster
+            <AIAssistant />
+          </div>
+          <Toaster
           position="top-right"
           toastOptions={{
             duration: 4000,
@@ -54,8 +57,9 @@ function App() {
               },
             },
           }}
-        />
-      </BrowserRouter>
+          />
+        </BrowserRouter>
+      </ThemeProvider>
     </Provider>
   );
 }

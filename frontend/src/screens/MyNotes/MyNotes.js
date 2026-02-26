@@ -126,14 +126,14 @@ const MyNotes = ({ search }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-theme flex items-center justify-center">
         <LoadingSpinner size="xl" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white py-8">
+    <div className="min-h-screen bg-theme py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
@@ -143,10 +143,10 @@ const MyNotes = ({ search }) => {
             className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6"
           >
             <div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">
+              <h1 className="text-4xl font-bold text-theme mb-2">
                 Welcome back, {userInfo?.name}! 👋
               </h1>
-              <p className="text-gray-600">
+              <p className="text-theme-muted">
                 You have {filteredNotes.length} note{filteredNotes.length !== 1 ? 's' : ''} 
                 {filterCategory !== 'all' && ` in ${filterCategory}`}
               </p>
@@ -168,7 +168,7 @@ const MyNotes = ({ search }) => {
           transition={{ delay: 0.1 }}
           className="mb-8"
         >
-          <Card className="bg-white backdrop-blur-sm border-gray-200">
+          <Card className="backdrop-blur-sm">
             <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
               {/* Search and Filters */}
               <div className="flex flex-col sm:flex-row gap-4 flex-1">
@@ -177,7 +177,7 @@ const MyNotes = ({ search }) => {
                   <input
                     type="search"
                     placeholder="Search notes..."
-                    className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                    className="w-full pl-10 pr-4 py-3 bg-theme-input border border-theme rounded-lg text-theme placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                     onChange={(e) => setSearch && setSearch(e.target.value)}
                     defaultValue={search}
                   />
@@ -207,13 +207,13 @@ const MyNotes = ({ search }) => {
               </div>
 
               {/* View Toggle */}
-              <div className="flex items-center bg-gray-50 rounded-lg p-1 border border-gray-300">
+              <div className="flex items-center bg-theme-input rounded-lg p-1 border border-theme">
                 <button
                   onClick={() => setViewMode('grid')}
                   className={`p-2 rounded-md transition-colors ${
                     viewMode === 'grid' 
                       ? 'bg-purple-600 text-white' 
-                      : 'text-gray-600 hover:text-gray-900'
+                      : 'text-theme-muted hover:text-theme'
                   }`}
                 >
                   <Squares2X2Icon className="w-5 h-5" />
@@ -223,7 +223,7 @@ const MyNotes = ({ search }) => {
                   className={`p-2 rounded-md transition-colors ${
                     viewMode === 'list' 
                       ? 'bg-purple-600 text-white' 
-                      : 'text-gray-600 hover:text-gray-900'
+                      : 'text-theme-muted hover:text-theme'
                   }`}
                 >
                   <ListBulletIcon className="w-5 h-5" />

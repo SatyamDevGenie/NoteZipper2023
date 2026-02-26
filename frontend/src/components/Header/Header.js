@@ -52,6 +52,7 @@ const SparklesIcon = ({ className }) => (
   </svg>
 );
 import { logout } from "../../store/slices/authSlice";
+import ThemeSwitcher from "../ThemeSwitcher/ThemeSwitcher";
 
 const Header = ({ setSearch }) => {
   const navigate = useNavigate();
@@ -84,7 +85,7 @@ const Header = ({ setSearch }) => {
     <motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className="bg-white/95 backdrop-blur-md text-gray-900 fixed top-0 left-0 w-full shadow-lg z-50 border-b border-gray-200"
+      className="bg-theme-header backdrop-blur-md text-theme fixed top-0 left-0 w-full shadow-lg z-50 border-b border-theme"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
@@ -111,7 +112,7 @@ const Header = ({ setSearch }) => {
                 <input
                   type="search"
                   placeholder="Search your notes..."
-                  className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-300 bg-gray-50 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200"
+                  className="w-full pl-10 pr-4 py-2 rounded-xl border border-theme bg-theme-input text-theme placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200"
                   onChange={(e) => setSearch(e.target.value)}
                 />
               </div>
@@ -119,12 +120,13 @@ const Header = ({ setSearch }) => {
           )}
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6">
+          <div className="hidden md:flex items-center space-x-4">
+            <ThemeSwitcher />
             {userInfo ? (
               <>
                 <Link
                   to="/mynotes"
-                  className="flex items-center px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 transition-all duration-200 group"
+                  className="flex items-center px-4 py-2 rounded-lg text-sm font-medium text-theme hover:bg-theme-tertiary transition-all duration-200 group"
                 >
                   <DocumentTextIcon className="w-4 h-4 mr-2 group-hover:text-purple-300 transition-colors" />
                   My Notes
@@ -134,7 +136,7 @@ const Header = ({ setSearch }) => {
                 <div className="relative" ref={dropdownRef}>
                   <button
                     onClick={() => setDropdownOpen(!dropdownOpen)}
-                    className="flex items-center space-x-3 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-100 transition-all duration-200"
+                    className="flex items-center space-x-3 px-4 py-2 rounded-lg text-sm font-medium text-theme hover:bg-theme-tertiary transition-all duration-200"
                   >
                     <img
                       src={userInfo.pic || "https://via.placeholder.com/32"}
@@ -162,12 +164,12 @@ const Header = ({ setSearch }) => {
                       initial={{ opacity: 0, scale: 0.95, y: -10 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                      className="absolute right-0 mt-2 w-56 bg-white backdrop-blur-md rounded-xl shadow-lg border border-gray-200 z-50"
+                      className="absolute right-0 mt-2 w-56 bg-theme-card backdrop-blur-md rounded-xl shadow-lg border border-theme z-50"
                     >
                       <div className="p-2">
                         <Link
                           to="/profile"
-                          className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-600 rounded-lg transition-all duration-200"
+                          className="flex items-center px-4 py-3 text-sm text-theme-muted hover:bg-purple-50 hover:text-purple-600 rounded-lg transition-all duration-200"
                           onClick={() => setDropdownOpen(false)}
                         >
                           <UserCircleIcon className="w-5 h-5 mr-3" />
@@ -176,7 +178,7 @@ const Header = ({ setSearch }) => {
                         <hr className="border-gray-200 my-2" />
                         <button
                           onClick={logoutHandler}
-                          className="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 rounded-lg transition-all duration-200"
+                          className="flex items-center w-full px-4 py-3 text-sm text-theme-muted hover:bg-red-50 hover:text-red-600 rounded-lg transition-all duration-200"
                         >
                           <ArrowRightOnRectangleIcon className="w-5 h-5 mr-3" />
                           Sign Out
@@ -207,7 +209,7 @@ const Header = ({ setSearch }) => {
           {/* Mobile Hamburger */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden inline-flex items-center justify-center p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="md:hidden inline-flex items-center justify-center p-2 rounded-lg text-theme hover:bg-theme-tertiary transition-colors"
           >
             {mobileMenuOpen ? (
               <XMarkIcon className="h-6 w-6" />
@@ -224,9 +226,12 @@ const Header = ({ setSearch }) => {
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: "auto" }}
           exit={{ opacity: 0, height: 0 }}
-          className="md:hidden bg-white backdrop-blur-md border-t border-gray-200"
+          className="md:hidden bg-theme-card backdrop-blur-md border-t border-theme"
         >
           <div className="px-4 pt-4 pb-6 space-y-4">
+            <div className="flex justify-end">
+              <ThemeSwitcher />
+            </div>
             {userInfo && (
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -235,7 +240,7 @@ const Header = ({ setSearch }) => {
                 <input
                   type="search"
                   placeholder="Search your notes..."
-                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 bg-gray-50 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-theme bg-theme-input text-theme placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                   onChange={(e) => setSearch(e.target.value)}
                 />
               </div>
@@ -245,7 +250,7 @@ const Header = ({ setSearch }) => {
               <>
                 <Link
                   to="/mynotes"
-                  className="flex items-center px-4 py-3 rounded-lg text-base font-medium hover:bg-gray-100 transition-colors"
+                  className="flex items-center px-4 py-3 rounded-lg text-base font-medium text-theme hover:bg-theme-tertiary transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <DocumentTextIcon className="w-5 h-5 mr-3" />
@@ -254,7 +259,7 @@ const Header = ({ setSearch }) => {
 
                 <Link
                   to="/profile"
-                  className="flex items-center px-4 py-3 rounded-lg text-base font-medium hover:bg-gray-100 transition-colors"
+                  className="flex items-center px-4 py-3 rounded-lg text-base font-medium text-theme hover:bg-theme-tertiary transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <UserCircleIcon className="w-5 h-5 mr-3" />
@@ -273,7 +278,7 @@ const Header = ({ setSearch }) => {
               <div className="space-y-2">
                 <Link
                   to="/login"
-                  className="block px-4 py-3 rounded-lg text-base font-medium hover:bg-gray-100 transition-colors"
+                  className="block px-4 py-3 rounded-lg text-base font-medium text-theme hover:bg-theme-tertiary transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Sign In
