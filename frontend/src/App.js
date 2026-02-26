@@ -7,6 +7,7 @@ import { useState } from "react";
 import store from "./store";
 import Header from "./components/Header/Header";
 import Footer from "./components/Footer/Footer";
+import AIAssistant from "./components/AIAssistant/AIAssistant";
 import CreateNote from "./screens/CreateNote/CreateNote";
 import LandingPage from "./screens/LandingPage/LandingPage";
 import LoginScreen from "./screens/LoginScreen/LoginScreen";
@@ -35,6 +36,7 @@ function App() {
             </Routes>
           </main>
           <Footer />
+          <AIAssistant />
         </div>
         <Toaster
           position="top-right"

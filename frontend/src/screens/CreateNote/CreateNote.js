@@ -3,11 +3,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import ReactMarkdown from "react-markdown";
+import toast from "react-hot-toast";
 import { createNote } from "../../store/slices/notesSlice";
+import { aiService } from "../../services/aiService";
 import Input from "../../components/ui/Input";
 import Textarea from "../../components/ui/Textarea";
 import Button from "../../components/ui/Button";
 import Card from "../../components/ui/Card";
+import LoadingSpinner from "../../components/ui/LoadingSpinner";
 
 function CreateNote() {
   const [formData, setFormData] = useState({
@@ -17,17 +20,91 @@ function CreateNote() {
   });
   const [validationErrors, setValidationErrors] = useState({});
   const [showPreview, setShowPreview] = useState(false);
+  const [aiLoading, setAiLoading] = useState(null);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const { loading, error } = useSelector((state) => state.notes);
+  const token = useSelector((state) => state.auth.userInfo?.token);
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
+  };
+
+  const handleSuggestTitle = async () => {
+    if (!formData.content?.trim()) {
+      toast.error("Add some content first");
+      return;
+    }
+    setAiLoading("title");
+    try {
+      const { title } = await aiService.suggestTitle(formData.content, token);
+      setFormData((f) => ({ ...f, title }));
+      toast.success("Title suggested");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to suggest title");
+    } finally {
+      setAiLoading(null);
+    }
+  };
+
+  const handleSuggestCategory = async () => {
+    if (!formData.title?.trim() && !formData.content?.trim()) {
+      toast.error("Add title or content first");
+      return;
+    }
+    setAiLoading("category");
+    try {
+      const { category } = await aiService.suggestCategory(
+        formData.title,
+        formData.content,
+        token
+      );
+      setFormData((f) => ({ ...f, category }));
+      toast.success("Category suggested");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to suggest category");
+    } finally {
+      setAiLoading(null);
+    }
+  };
+
+  const handleImprove = async (style) => {
+    if (!formData.content?.trim()) {
+      toast.error("Add some content first");
+      return;
+    }
+    setAiLoading(`improve-${style}`);
+    try {
+      const { content } = await aiService.improve(formData.content, style, token);
+      setFormData((f) => ({ ...f, content }));
+      toast.success("Content improved");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to improve");
+    } finally {
+      setAiLoading(null);
+    }
+  };
+
+  const handleExpand = async () => {
+    if (!formData.content?.trim()) {
+      toast.error("Add some content first");
+      return;
+    }
+    setAiLoading("expand");
+    try {
+      const { continuation } = await aiService.expand(formData.content, token);
+      setFormData((f) => ({ ...f, content: (f.content || "").trim() + "\n\n" + continuation }));
+      toast.success("Content expanded");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to expand");
+    } finally {
+      setAiLoading(null);
+    }
   };
 
   const validateForm = () => {
@@ -114,6 +191,71 @@ function CreateNote() {
                 error={validationErrors.category}
                 required
               />
+
+              {/* AI Tools */}
+              <div className="rounded-lg border border-indigo-100 bg-indigo-50/50 p-4">
+                <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center">
+                  <span className="mr-2">✨</span> AI tools
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={!token || !formData.content?.trim() || !!aiLoading}
+                    onClick={handleSuggestTitle}
+                  >
+                    {aiLoading === "title" ? <LoadingSpinner size="sm" className="mr-1" /> : null}
+                    Suggest title
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={!token || (!formData.title?.trim() && !formData.content?.trim()) || !!aiLoading}
+                    onClick={handleSuggestCategory}
+                  >
+                    {aiLoading === "category" ? <LoadingSpinner size="sm" className="mr-1" /> : null}
+                    Suggest category
+                  </Button>
+                  <div className="inline-flex rounded-lg border border-gray-300 bg-white p-1">
+                    <button
+                      type="button"
+                      className="px-2 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded disabled:opacity-50"
+                      disabled={!token || !formData.content?.trim() || !!aiLoading}
+                      onClick={() => handleImprove("grammar")}
+                    >
+                      {aiLoading === "improve-grammar" ? "..." : "Fix grammar"}
+                    </button>
+                    <button
+                      type="button"
+                      className="px-2 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded disabled:opacity-50"
+                      disabled={!token || !formData.content?.trim() || !!aiLoading}
+                      onClick={() => handleImprove("formal")}
+                    >
+                      {aiLoading === "improve-formal" ? "..." : "Make formal"}
+                    </button>
+                    <button
+                      type="button"
+                      className="px-2 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded disabled:opacity-50"
+                      disabled={!token || !formData.content?.trim() || !!aiLoading}
+                      onClick={() => handleImprove("simple")}
+                    >
+                      {aiLoading === "improve-simple" ? "..." : "Simplify"}
+                    </button>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={!token || !formData.content?.trim() || !!aiLoading}
+                    onClick={handleExpand}
+                  >
+                    {aiLoading === "expand" ? <LoadingSpinner size="sm" className="mr-1" /> : null}
+                    Expand / continue
+                  </Button>
+                </div>
+              </div>
 
               {/* Content */}
               <div className="space-y-2">

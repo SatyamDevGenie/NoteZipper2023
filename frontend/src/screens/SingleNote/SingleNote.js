@@ -4,7 +4,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import axios from "axios";
+import toast from "react-hot-toast";
 import { updateNote, deleteNote } from "../../store/slices/notesSlice";
+import { aiService } from "../../services/aiService";
 import Input from "../../components/ui/Input";
 import Textarea from "../../components/ui/Textarea";
 import Button from "../../components/ui/Button";
@@ -21,12 +23,16 @@ function SingleNote() {
   const [validationErrors, setValidationErrors] = useState({});
   const [showPreview, setShowPreview] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(true);
+  const [summary, setSummary] = useState("");
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [aiLoading, setAiLoading] = useState(null);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id } = useParams();
 
   const { loading, error } = useSelector((state) => state.notes);
+  const token = useSelector((state) => state.auth.userInfo?.token);
 
   useEffect(() => {
     const fetchNote = async () => {
@@ -100,6 +106,82 @@ function SingleNote() {
     }
   };
 
+  const handleSummarize = async () => {
+    if (!formData.content?.trim()) {
+      toast.error("No content to summarize");
+      return;
+    }
+    setSummaryLoading(true);
+    setSummary("");
+    try {
+      const { summary: s } = await aiService.summarize(formData.content, token);
+      setSummary(s);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to summarize");
+    } finally {
+      setSummaryLoading(false);
+    }
+  };
+
+  const handleSuggestTitle = async () => {
+    if (!formData.content?.trim()) return;
+    setAiLoading("title");
+    try {
+      const { title } = await aiService.suggestTitle(formData.content, token);
+      setFormData((f) => ({ ...f, title }));
+      toast.success("Title suggested");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to suggest title");
+    } finally {
+      setAiLoading(null);
+    }
+  };
+
+  const handleSuggestCategory = async () => {
+    setAiLoading("category");
+    try {
+      const { category } = await aiService.suggestCategory(
+        formData.title,
+        formData.content,
+        token
+      );
+      setFormData((f) => ({ ...f, category }));
+      toast.success("Category suggested");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to suggest category");
+    } finally {
+      setAiLoading(null);
+    }
+  };
+
+  const handleImprove = async (style) => {
+    if (!formData.content?.trim()) return;
+    setAiLoading(`improve-${style}`);
+    try {
+      const { content } = await aiService.improve(formData.content, style, token);
+      setFormData((f) => ({ ...f, content }));
+      toast.success("Content improved");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to improve");
+    } finally {
+      setAiLoading(null);
+    }
+  };
+
+  const handleExpand = async () => {
+    if (!formData.content?.trim()) return;
+    setAiLoading("expand");
+    try {
+      const { continuation } = await aiService.expand(formData.content, token);
+      setFormData((f) => ({ ...f, content: (f.content || "").trim() + "\n\n" + continuation }));
+      toast.success("Content expanded");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to expand");
+    } finally {
+      setAiLoading(null);
+    }
+  };
+
   if (fetchLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -117,9 +199,33 @@ function SingleNote() {
           transition={{ duration: 0.5 }}
         >
           {/* Header */}
-          <div className="mb-8">
+          <div className="mb-6">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Edit Note</h1>
             <p className="text-gray-600">Make changes to your note</p>
+          </div>
+
+          {/* Summarize + result */}
+          <div className="mb-6 flex flex-col gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={!formData.content?.trim() || summaryLoading}
+              onClick={handleSummarize}
+            >
+              {summaryLoading ? (
+                <LoadingSpinner size="sm" className="mr-2" />
+              ) : (
+                <span className="mr-2">✨</span>
+              )}
+              Summarize note
+            </Button>
+            {summary && (
+              <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                <p className="text-sm font-medium text-gray-600 mb-1">Summary</p>
+                <p className="text-gray-800">{summary}</p>
+              </div>
+            )}
           </div>
 
           <Card className="shadow-xl">
@@ -154,6 +260,71 @@ function SingleNote() {
                 error={validationErrors.category}
                 required
               />
+
+              {/* AI Tools */}
+              <div className="rounded-lg border border-indigo-100 bg-indigo-50/50 p-4">
+                <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center">
+                  <span className="mr-2">✨</span> AI tools
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={!formData.content?.trim() || !!aiLoading}
+                    onClick={handleSuggestTitle}
+                  >
+                    {aiLoading === "title" ? <LoadingSpinner size="sm" className="mr-1" /> : null}
+                    Suggest title
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={!!aiLoading}
+                    onClick={handleSuggestCategory}
+                  >
+                    {aiLoading === "category" ? <LoadingSpinner size="sm" className="mr-1" /> : null}
+                    Suggest category
+                  </Button>
+                  <div className="inline-flex rounded-lg border border-gray-300 bg-white p-1">
+                    <button
+                      type="button"
+                      className="px-2 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded disabled:opacity-50"
+                      disabled={!formData.content?.trim() || !!aiLoading}
+                      onClick={() => handleImprove("grammar")}
+                    >
+                      {aiLoading === "improve-grammar" ? "..." : "Fix grammar"}
+                    </button>
+                    <button
+                      type="button"
+                      className="px-2 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded disabled:opacity-50"
+                      disabled={!formData.content?.trim() || !!aiLoading}
+                      onClick={() => handleImprove("formal")}
+                    >
+                      {aiLoading === "improve-formal" ? "..." : "Make formal"}
+                    </button>
+                    <button
+                      type="button"
+                      className="px-2 py-1 text-sm text-gray-700 hover:bg-gray-100 rounded disabled:opacity-50"
+                      disabled={!formData.content?.trim() || !!aiLoading}
+                      onClick={() => handleImprove("simple")}
+                    >
+                      {aiLoading === "improve-simple" ? "..." : "Simplify"}
+                    </button>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={!formData.content?.trim() || !!aiLoading}
+                    onClick={handleExpand}
+                  >
+                    {aiLoading === "expand" ? <LoadingSpinner size="sm" className="mr-1" /> : null}
+                    Expand / continue
+                  </Button>
+                </div>
+              </div>
 
               {/* Content */}
               <div className="space-y-2">
